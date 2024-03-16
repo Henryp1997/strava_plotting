@@ -1,0 +1,4 @@
+client_id = <enter strava ID here>
+client_secret = <enter strava secret ID here>
+profile_path = <enter profile folder path of profile which has Facebook login details stored>
+firefox_path = <enter file path of firefox.exe on your system>

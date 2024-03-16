@@ -1,0 +1,4 @@
+plots/*.svg
+plots/*.png
+__pycache__
+my_config.txt
