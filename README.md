@@ -1,8 +1,5 @@
 # Plot data from runs using Strava's API
-
-![hr_vs_pace](https://github.com/Henryp1997/strava_plotting/assets/118852495/b3b4bc99-7941-4a7e-b1d7-ef5cd200421e)
-
-![cadence_vs_pace](https://github.com/Henryp1997/strava_plotting/assets/118852495/c2755562-e556-49df-bbc0-dc208ca4731f)
+See plot examples [here](pPlot-examples)
 
 ## Set up
 1. Firstly, follow the steps outline in step B here: https://developers.strava.com/docs/getting-started/. This will give you access to both your 'Client ID' and 'Client Secret', which are both necessary for using the API.
@@ -24,3 +21,7 @@ Run strava_data.py - in the command line you will be asked if you would like to 
 - Average cadence vs average pace
 
 NOTE: you may have to change the bounds of each graph to fit with your data. All the relevant values are the arguments `ymin, ymax, ytick1, ytick2, tick_delta, h_line_loc` defined in `plot_data.py`'s `create_plot` function
+
+## Plot examples
+![hr_vs_pace](https://github.com/Henryp1997/strava_plotting/assets/118852495/b3b4bc99-7941-4a7e-b1d7-ef5cd200421e)
+![cadence_vs_pace](https://github.com/Henryp1997/strava_plotting/assets/118852495/c2755562-e556-49df-bbc0-dc208ca4731f)
