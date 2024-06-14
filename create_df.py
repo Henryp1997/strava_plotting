@@ -37,7 +37,6 @@ def fetch_dataframe():
     print(f"{tick_mark}")
 
     df = pd.json_normalize(df)
-    print(df['average_heartrate'])
 
     return df
 
