@@ -1,4 +1,4 @@
-# Plot data from runs recorded on your strava profile
+# Plot data from runs using Strava's API
 
 ![hr_vs_pace](https://github.com/Henryp1997/strava_plotting/assets/118852495/b3b4bc99-7941-4a7e-b1d7-ef5cd200421e)
 
