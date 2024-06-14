@@ -1,5 +1,5 @@
 # Plot data from runs using Strava's API
-See plot examples [here](pPlot-examples)
+See plot examples [here](plot-examples)
 
 ## Set up
 1. Firstly, follow the steps outline in step B here: https://developers.strava.com/docs/getting-started/. This will give you access to both your 'Client ID' and 'Client Secret', which are both necessary for using the API.
