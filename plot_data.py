@@ -35,26 +35,25 @@ def plot_all(plot_filepath, dates, date_range, null_data, distances, paces, av_H
 
     dist, pace, hr, cad, weekly_dist, hr_vs_pace, cad_vs_pace = plot_choices
 
-    if dist:
-        print("Plotting distances...", end=" ")
-        create_plot(plot_filepath, date_range, dates, null_data, distances, 'distance', f"Running distance in kilometers since April 2022 ({total_runs} runs)", "Distance (km)", 0, 25, 0, 25, 2.5, 5)
-        print(f"{tick_mark}")
+    # first four plots will have a similar call to function create_plot
+    args_dict = {
+        0: (dist, "distances", f"Running distance in kilometers ({total_runs} runs)", "Distance (km)", 0, 25, 0, 25, 2.5, 5),
+        1: (pace, "paces", f"Running pace in minutes per kilometer ({total_runs} runs)", "Pace (mins/km)", 4.5, 7.5, 4.5, 7.5, 0.5, 5),
+        2: (hr, "heart rates", f"Heartrate in bpm ({total_runs} runs)", "HR (bpm)", 130, 190, 130, 190, 10, -1),
+        3: (cad, "cadences", f"Cadence in steps per minute ({total_runs} runs)", "Cadence (spm)", 140, 185, 140, 185, 5, 180)
+    }
 
-    if pace:
-        print("Plotting paces...", end=" ")
-        create_plot(plot_filepath, date_range, dates, null_data, paces, 'pace', f"Running pace in minutes per kilometer since April 2022 ({total_runs} runs)", "Pace (mins/km)", 4.5, 7.5, 4.5, 7.5, 0.5, 5)
-        print(f"{tick_mark}")
+    for i, choice in enumerate(plot_choices[:4]):
+        if choice:
+            name = args_dict[i][1]
+            title = args_dict[i][2]
+            y_axis_title = args_dict[i][3]
+            plot_args = args_dict[i][4:]
+            print(f"Plotting {name}...", end=" ")
+            create_plot(plot_filepath, date_range, dates, null_data, distances, name, title, y_axis_title, *plot_args)
+            print(f"{tick_mark}")
 
-    if hr:
-        print("Plotting heart rates...", end=" ")
-        create_plot(plot_filepath, date_range, dates, null_data, av_HR, 'heartrate', f"Heartrate in bpm since April 2022 ({total_runs} runs)",'HR (bpm)', 130, 190, 130, 190, 10, -1)
-        print(f"{tick_mark}")
-
-    if cad:
-        print("Plotting cadences...", end=" ")
-        create_plot(plot_filepath, date_range, dates, null_data, cadences, 'cadences', f"Cadence in steps per minute since April 2022 ({total_runs} runs)", "Cadence (spm)", 140, 185, 140, 185, 5, 180)
-        print(f"{tick_mark}")
-
+    # remaining plots are dissimilar
     # weekly distance plot
     if weekly_dist:
         print("Plotting weekly distances...", end=" ")
