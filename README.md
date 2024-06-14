@@ -12,7 +12,9 @@
 client_id = 111111
 client_secret = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 ```
-4. Run strava_data.py - in the command line you will be asked if you would like to create the dataframe (store the run data in activities.csv) and which plots to generate. Plot options are:
+
+## Using the tool
+Run strava_data.py - in the command line you will be asked if you would like to create the dataframe (store the run data in activities.csv) and which plots to generate. Plot options are:
 - Distances
 - Average paces
 - Average heart rates
@@ -20,3 +22,5 @@ client_secret = aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
 - Weekly distance (cumulative total of run distances for each week)
 - Average heart rate vs average pace (example shown at the top of this README)
 - Average cadence vs average pace
+
+NOTE: you may have to change the bounds of each graph to fit with your data. All the relevant values are the arguments `ymin, ymax, ytick1, ytick2, tick_delta, h_line_loc` defined in `plot_data.py`'s `create_plot` function
