@@ -25,3 +25,6 @@ NOTE: you may have to change the bounds of each graph to fit with your data. All
 ## Plot examples
 ![hr_vs_pace](https://github.com/Henryp1997/strava_plotting/assets/118852495/b3b4bc99-7941-4a7e-b1d7-ef5cd200421e)
 ![cadence_vs_pace](https://github.com/Henryp1997/strava_plotting/assets/118852495/c2755562-e556-49df-bbc0-dc208ca4731f)
+![weekly_distance](https://github.com/Henryp1997/strava_plotting/assets/118852495/cefbd8f6-4349-43aa-8632-5977a9d69bd1)
+![heartrate](https://github.com/Henryp1997/strava_plotting/assets/118852495/5944b024-f363-498a-9383-a4a0d1d8a00a)
+
