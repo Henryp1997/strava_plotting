@@ -1,8 +1,18 @@
 from datetime import datetime
+import os
+
+def read_config(string):
+    with open(f'{os.path.dirname(os.path.realpath(__file__))}/config.txt', 'r') as f:
+        params = f.readlines()
+    
+    return [i.split(" = ")[1] for i in params if string in i][0].strip("\n")
 
 def get_weekly_averaged_data(data_list, dates):
     """ get data as a list of weekly totals """
 
+    data_list = list(data_list)
+    dates = list(dates)
+    
     data_list.reverse()
     dates.reverse()
     last_run_date = dates[-1]
