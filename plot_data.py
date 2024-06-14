@@ -131,9 +131,25 @@ def plot_all(plot_filepath, dates, date_range, null_data, distances, paces, av_H
         ax.set_ylabel('Cadence (steps/min)')
         ax.set_xlabel("Pace (mins/km)", labelpad=10)
         ax.set_title(f'Average cadence vs pace')
-        # ax.axhline(h_line_loc,color='k',linestyle='--')
-        # if filename == 'distance':
-            # ax.axhline(h_line_loc+5,color='k',linestyle='--')
+        
+        # remove nans from heart rate (run before optical sensor watch)
+        new_paces = []
+        new_cadences = []
+
+        # not sure why these need to be converted to lists, but I was
+        # getting KeyErrors in the loop below before converting them
+        paces = list(paces)
+
+        for i, val in enumerate(cadences):
+            if not math.isnan(val):
+                new_paces.append(paces[i])
+                new_cadences.append(val)
+
+        # fit best line to data
+        popt, pcov = curve_fit(lambda x, m, c: m*x + c, new_paces, new_cadences)
+        
+        x_fit = np.linspace(4.3, 7.5, 1000)
+        ax.plot(x_fit, popt[0]*x_fit + popt[1], "b--")
 
         ax.plot(paces, cadences, "bo", mec='#000', mfc='#727ffc')
         plt.savefig(f'{plot_filepath}/cadence_vs_pace.svg')
