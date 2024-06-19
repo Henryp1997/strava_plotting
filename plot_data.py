@@ -10,19 +10,19 @@ plt.rcParams["figure.figsize"] = (11, 5)
 tick_mark = "\u2714"
 
 def create_plot(plot_filepath, date_range, dates, null_data, y_data, filename, title, ylabel, ymin, ymax, ytick1, ytick2, tick_delta, h_line_loc):
-    fig, ax = plt.subplots(figsize=(11,5), dpi=150, facecolor='#FFFFFF')
+    fig, ax = plt.subplots(figsize=(11, 5), dpi=150, facecolor='#FFFFFF')
     ax.axis(ymin=ymin)
     ax.axis(ymax=ymax)
 
     ax.grid(linewidth=0.5)
 
-    ax.set_yticks(np.arange(ytick1,ytick2,tick_delta))
+    ax.set_yticks(np.arange(ytick1, ytick2, tick_delta))
     ax.set_ylabel(ylabel)
     ax.set_xlabel("Date", labelpad=10)
     ax.set_title(title)
     ax.axhline(h_line_loc, color='k', linestyle='--')
     if filename == 'distance':
-        ax.axhline(h_line_loc+5, color='k', linestyle='--')
+        ax.axhline(h_line_loc + 5, color='k', linestyle='--')
 
     ax.plot(date_range, null_data)
     ax.plot(dates, y_data, "-bo", mec='#000', mfc='#727ffc')
@@ -121,7 +121,7 @@ def plot_all(plot_filepath, dates, date_range, null_data, distances, paces, av_H
     # pace vs cadence
     if cad_vs_pace:
         print("Plotting cadence vs pace...", end=" ")
-        fig, ax = plt.subplots(figsize=(11,5), dpi=150, facecolor='#FFFFFF')
+        fig, ax = plt.subplots(figsize=(11, 5), dpi=150, facecolor='#FFFFFF')
         # ax.axis(ymin=130)
         # ax.axis(ymax=190)
 
