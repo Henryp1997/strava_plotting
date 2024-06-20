@@ -7,6 +7,14 @@ import utils
 
 tick_mark = "\u2714"
 
+desired_columns = [
+    'distance',
+    'average_speed',
+    'average_heartrate',
+    'average_cadence',
+    'start_date',
+]
+
 def fetch_dataframe():
     """ Get dataframe of activities from Strava API"""
     print("\nFetch Dataframe of activities")
@@ -19,8 +27,15 @@ def fetch_dataframe():
         token_data = json.load(f)
     print(f"{tick_mark}")
 
-    print("Getting all activities and creating dataframe...")
-    header = {'Authorization': 'Bearer ' + token_data['access_token']}
+    print("Getting all activities and creating dataframe...", end=" ")
+
+    try:
+        header = {'Authorization': 'Bearer ' + token_data['access_token']}
+    except KeyError:
+        # access_token not found in JSON file
+        print("\u2a2f\nAccess token not found. Have you added your Client ID and Client Secret to 'config.txt'?")
+        return None
+
     per_page = 50
     page = 1
     
@@ -38,16 +53,19 @@ def fetch_dataframe():
 
     df = pd.json_normalize(df)
 
+    # drop the dataframe rows that aren't runs
+    df = df.drop(df[df['type'] != 'Run'].index)
+
+    # drop the undesired dataframe columns
+    undesired_columns = set(df.columns) - set(desired_columns)
+    df = df.drop(columns=list(undesired_columns))
+
     return df
 
 def extract_run_data(df):
     """ Extract only run data for all included metrics (e.g., distance, heart rate, pace, etc)"""
     print("\nExtract run data from dataframe")
     print("-----------------------------")
-
-    # drop the dataframe rows that aren't runs
-    df = df.drop(df[df['type'] != 'Run'].index)
-
     print("Getting run data from dataframe...", end=" ")
     distances = df['distance'] / 1000
     paces = 1 / (0.06 * df['average_speed']) # convert from m/s to mins/km
