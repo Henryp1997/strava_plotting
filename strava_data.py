@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import requests
 import urllib3
 import pandas as pd
@@ -43,6 +44,8 @@ if __name__ == '__main__':
     df_path = f"{os.path.dirname(os.path.realpath(__file__))}/activities.csv"
     if input("Re-create dataframe? (y/n) ") == "y":
         df = fetch_dataframe()
+        if df is None:
+            sys.exit()
         df.to_csv(df_path)
     else:
         df = pd.read_csv(df_path)
