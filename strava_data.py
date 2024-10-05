@@ -32,7 +32,6 @@ def get_access_token(client_id, client_secret):
         json.dump(json_result.json(), outfile)
     print(f"{tick_mark}")
 
-### UTILITY FUNCTIONS
 if __name__ == '__main__':
     # read client id and secret from config file and get latest access token
     # this is very quick so it's not detrimental to do it each time the code is ran
