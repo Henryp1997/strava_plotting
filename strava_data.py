@@ -41,7 +41,12 @@ if __name__ == '__main__':
 
     # create the dataframe of run activities
     df_path = f"{os.path.dirname(os.path.realpath(__file__))}/activities.csv"
-    if input("Re-create dataframe? (y/n) ") == "y":
+    if os.path.exists(df_path):
+        recreate = input("Re-create dataframe (y/n) ")
+    else:
+        recreate = "y"
+
+    if recreate == "y":
         df = fetch_dataframe()
         if df is None:
             sys.exit()
