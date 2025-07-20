@@ -1,74 +1,115 @@
+import os
+import math
+
+import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from scipy.optimize import curve_fit
-import math
-import numpy as np
 
 plt.rcParams["axes.facecolor"] = "#FFFFFF"
 plt.rcParams["figure.dpi"] = 300
 plt.rcParams["figure.figsize"] = (11, 5)
 tick_mark = "\u2714"
 
+data_vs_date_args = {
+    "distance":{
+        "units" : "km",
+        "ylims" : (0, 25),
+        "yticks": (0, 25, 2.5),
+        "h_line": 5
+    },
+    "pace": {
+        "units" : "mins/km",
+        "ylims" : (4.5, 7.5),
+        "yticks": (4.5, 7.5, 0.5),
+        "h_line": 5
+    },
+    "heartrate": {
+        "units" : "bpm",
+        "ylims" : (130, 190),
+        "yticks": (130, 190, 10),
+        "h_line": -1
+    },
+    "cadence": {
+        "units" : "steps/min",
+        "ylims" : (140, 185),
+        "yticks": (140, 185, 5),
+        "h_line": 180
+    }
+}
 
-def create_plot(plot_filepath, date_range, dates, null_data, y_data, filename, title, ylabel, ymin, ymax, ytick1, ytick2, tick_delta, h_line_loc):
-    fig, ax = plt.subplots(figsize=(11, 5), dpi=150, facecolor="#FFFFFF")
+def plot_versus_date(name, total_runs, plot_filepath, date_range, dates, null_data, ydata):
+    """ General function for plotting running data against datetime """
+    _, ax = plt.subplots(figsize=(11, 5), dpi=150, facecolor="#FFFFFF")
+    args = data_vs_date_args[name]
+    ymin, ymax = args["ylims"]
     ax.axis(ymin=ymin)
     ax.axis(ymax=ymax)
 
     ax.grid(linewidth=0.5)
 
+    ytick1, ytick2, tick_delta = args["yticks"]
     ax.set_yticks(np.arange(ytick1, ytick2, tick_delta))
-    ax.set_ylabel(ylabel)
+    ax.set_ylabel(f"{name.capitalize()} ({units})")
     ax.set_xlabel("Date", labelpad=10)
-    ax.set_title(title)
+
+    units = args["units"]
+    ax.set_title(f"Running {name} in {units} ({total_runs} runs)")
+
+    h_line_loc = args["h_line"]
     ax.axhline(h_line_loc, color="k", linestyle="--")
-    if filename == "distance":
+    if name == "distance":
         ax.axhline(h_line_loc + 5, color="k", linestyle="--")
 
     ax.plot(date_range, null_data)
-    ax.plot(dates, y_data, "-bo", mec="#000", mfc="#727ffc")
-    plt.savefig(f"{plot_filepath}/{filename}.svg")
-    plt.savefig(f"{plot_filepath}/{filename}.png")
+    ax.plot(dates, ydata, "-bo", mec="#000", mfc="#727ffc")
+    plt.savefig(f"{plot_filepath}/{name}_vs_date.svg")
+    plt.savefig(f"{plot_filepath}/{name}_vs_date.png")
 
 
-def plot_all(plot_filepath, dates, date_range, null_data, distances, paces, av_HR, cadences, total_runs, distances_weekly, plot_choices=()):
+def plot_all(
+    dates,
+    date_range,
+    null_data,
+    distances,
+    paces,
+    av_HR,
+    cadences,
+    total_runs,
+    distances_weekly,
+    plot_choices=(),
+    plot_filepath=f"{os.path.dirname(os.path.realpath(__file__))}/plots"
+):
     print("\nPlotting")
     print("-----------")
 
     dist, pace, hr, cad, weekly_dist, hr_vs_pace, cad_vs_pace = plot_choices
 
-    # First four plots will have a similar call to function create_plot
-    args_dict = {
-        0: (dist, "distances", f"Running distance in kilometers ({total_runs} runs)", "Distance (km)", 0, 25, 0, 25, 2.5, 5),
-        1: (pace, "paces", f"Running pace in minutes per kilometer ({total_runs} runs)", "Pace (mins/km)", 4.5, 7.5, 4.5, 7.5, 0.5, 5),
-        2: (hr, "heart rates", f"Heartrate in bpm ({total_runs} runs)", "HR (bpm)", 130, 190, 130, 190, 10, -1),
-        3: (cad, "cadences", f"Cadence in steps per minute ({total_runs} runs)", "Cadence (spm)", 140, 185, 140, 185, 5, 180)
+    ### First four plots have the same args (all are data versus date)
+    all_data = {
+        "distance": dist, "pace": pace, "heartrate": hr, "cadence": cad
     }
-
-    for i, choice in enumerate(plot_choices[:4]):
-        if choice:
-            name = args_dict[i][1]
-            title = args_dict[i][2]
-            y_axis_title = args_dict[i][3]
-            plot_args = args_dict[i][4:]
+    for i, name in enumerate(("distance", "pace", "heartrate", "cadence")):
+        if plot_choices[i]:
+            # Only plot if user chose to do so
             print(f"Plotting {name}...", end=" ")
-            create_plot(plot_filepath, date_range, dates, null_data, distances, name, title, y_axis_title, *plot_args)
+            plot_versus_date(name, total_runs, plot_filepath, date_range, dates, null_data, all_data[name])
             print(f"{tick_mark}")
 
-    # Remaining plots are dissimilar
+    ### Remaining plots are dissimilar
     # Weekly distance plot
     if weekly_dist:
         print("Plotting weekly distances...", end=" ")
-        fig, ax = plt.subplots(figsize=(11,5), dpi=150, facecolor='#FFFFFF')
+        fig, ax = plt.subplots(figsize=(11,5), dpi=150, facecolor="#FFFFFF")
         ax.grid(linewidth=0.5)
-        ax.set_ylabel('Weekly distance (km)', labelpad=10)
-        ax.set_xlabel('Week number')
-        ax.set_title('Weekly distance')
+        ax.set_ylabel("Weekly distance (km)", labelpad=10)
+        ax.set_xlabel("Week number")
+        ax.set_title("Weekly distance")
         ax.set_xticks(np.arange(0,len(distances_weekly),5))
 
-        ax.plot(distances_weekly, "-bo", mec='#000', mfc='#727ffc')
-        plt.savefig(f'{plot_filepath}/weekly_distance.svg')
-        plt.savefig(f'{plot_filepath}/weekly_distance.png')
+        ax.plot(distances_weekly, "-bo", mec="#000", mfc="#727ffc")
+        plt.savefig(f"{plot_filepath}/weekly_distance.svg")
+        plt.savefig(f"{plot_filepath}/weekly_distance.png")
         print(f"{tick_mark}")
 
     # Pace vs average HR
@@ -144,7 +185,7 @@ def plot_all(plot_filepath, dates, date_range, null_data, distances, paces, av_H
                 new_cadences.append(val)
 
         # Fit best line to data
-        popt, pcov = curve_fit(lambda x, m, c: m*x + c, new_paces, new_cadences)
+        popt, _ = curve_fit(lambda x, m, c: m*x + c, new_paces, new_cadences)
         
         x_fit = np.linspace(4.3, 7.5, 1000)
         ax.plot(x_fit, popt[0]*x_fit + popt[1], "b--")

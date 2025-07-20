@@ -1,5 +1,3 @@
-import os
-import json
 import requests
 import pandas as pd
 import numpy as np
@@ -15,63 +13,64 @@ desired_columns = [
     "start_date",
 ]
 
-def fetch_dataframe():
+def fetch_dataframe(
+        json_header,
+        activities_url="https://www.strava.com/api/v3/athlete/activities",
+        per_page=50,
+        page=1
+    ):
     """ Get dataframe of activities from Strava API"""
     print("\nFetch Dataframe of activities")
     print("------------------------------")
 
-    activites_url = "https://www.strava.com/api/v3/athlete/activities"
+    # Get the first page of data
+    params = {
+        "per_page": per_page,
+        "page": page
+    }
+    data = requests.get(activities_url, headers=json_header, params=params).json()
+    if isinstance(data, dict):
+        # If access token is invalid, 'data' is only a single dictionary containing the errors
+        if data["message"] == "Authorization Error":
+            error = "Access code invalid/expired! Please try regenerating the access token."
+        else:
+            error = f"Unknown error occurred when requesting data. Error message is {data['message']}"
+        raise RuntimeError(error)
 
-    print("Getting token data from strava_tokens.json file...", end=" ")
-    with open(f'{os.path.dirname(os.path.realpath(__file__))}/strava_tokens.json') as f:
-        token_data = json.load(f)
-    print(f"{tick_mark}")
-
-    print("Getting all activities and creating dataframe...", end=" ")
-
-    try:
-        header = {'Authorization': 'Bearer ' + token_data['access_token']}
-    except KeyError:
-        # access_token not found in JSON file
-        print("\u2a2f\nAccess token not found. Have you added your Client ID and Client Secret to 'config.txt'?")
-        return None
-
-    per_page = 50
-    page = 1
-    
-    # this line gets the first page of data
-    df = requests.get(activites_url, headers=header, params={'per_page': per_page, 'page': page}).json()
-
-    # this while loop gets subsequent pages, until we hit the last result
+    # Get subsequent pages until we hit the last result
+    print(f"Getting {per_page} activities per page")
     while True:
+        print(f"Page {page}...", end=" ")
         page += 1
-        temp_df = requests.get(activites_url, headers=header, params={'per_page': per_page, 'page': page}).json()
-        if not temp_df:
+        temp_data = requests.get(activities_url, headers=json_header, params=params).json()
+        print(temp_data.keys())
+        if not temp_data:
             break
-        df += temp_df
-    print(f"{tick_mark}")
+        data += temp_data
+        print(f"{tick_mark}")
+    print("All activities loaded!")
 
-    df = pd.json_normalize(df)
+    df = pd.json_normalize(data) # Convert to Pandas DataFrame
 
-    # drop the dataframe rows that aren't runs
-    df = df.drop(df[df['type'] != 'Run'].index)
+    # Drop the dataframe rows that aren't runs
+    df = df.drop(df[df["type"] != "Run"].index)
 
-    # drop the undesired dataframe columns
+    # Drop the undesired dataframe columns
     undesired_columns = set(df.columns) - set(desired_columns)
     df = df.drop(columns=list(undesired_columns))
 
     return df
 
 
-def extract_run_data(df):
+def extract_run_data_from_df(df):
     """ Extract only run data for all included metrics (e.g., distance, heart rate, pace, etc) """
     print("\nExtract run data from dataframe")
     print("-----------------------------")
     print("Getting run data from dataframe...", end=" ")
     distances = df["distance"] / 1000
-    paces = 1 / (0.06 * df["average_speed"]) # convert from m/s to mins/km
+    paces = 1 / (0.06 * df["average_speed"]) # Convert from m/s to mins/km
     av_hr = df["average_heartrate"]
-    cadences = 2 * df["average_cadence"] # multiply by two because the data is for only one leg
+    cadences = 2 * df["average_cadence"] # Multiply by two because the data is for only one leg
     dates = pd.to_datetime(df["start_date"], format="%Y-%m-%dT%H:%M:%SZ")
     total_runs = len(dates)
 
@@ -84,4 +83,4 @@ def extract_run_data(df):
 
     print(f"{tick_mark}")
 
-    return f"{os.path.dirname(os.path.realpath(__file__))}/plots", dates, date_range, null_data, distances, paces, av_hr, cadences, total_runs, distances_weekly
+    return dates, date_range, null_data, distances, paces, av_hr, cadences, total_runs, distances_weekly
