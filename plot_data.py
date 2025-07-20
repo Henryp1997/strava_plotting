@@ -14,20 +14,20 @@ tick_mark = "\u2714"
 data_vs_date_args = {
     "distance":{
         "units" : "km",
-        "ylims" : (0, 25),
-        "yticks": (0, 25, 2.5),
+        "ylims" : (0, 27),
+        "yticks": (0, 27, 2.5),
         "h_line": 5
     },
     "pace": {
         "units" : "mins/km",
-        "ylims" : (4.5, 7.5),
-        "yticks": (4.5, 7.5, 0.5),
+        "ylims" : (4, 8.5),
+        "yticks": (4, 8.5, 0.5),
         "h_line": 5
     },
     "heartrate": {
         "units" : "bpm",
-        "ylims" : (130, 190),
-        "yticks": (130, 190, 10),
+        "ylims" : (120, 190),
+        "yticks": (120, 190, 10),
         "h_line": -1
     },
     "cadence": {
@@ -41,19 +41,19 @@ data_vs_date_args = {
 def plot_versus_date(name, total_runs, plot_filepath, date_range, dates, null_data, ydata):
     """ General function for plotting running data against datetime """
     _, ax = plt.subplots(figsize=(11, 5), dpi=150, facecolor="#FFFFFF")
+
+    # Get args from dict
     args = data_vs_date_args[name]
     ymin, ymax = args["ylims"]
+    ytick1, ytick2, tick_delta = args["yticks"]
+    units = args["units"]
+
     ax.axis(ymin=ymin)
     ax.axis(ymax=ymax)
-
     ax.grid(linewidth=0.5)
-
-    ytick1, ytick2, tick_delta = args["yticks"]
     ax.set_yticks(np.arange(ytick1, ytick2, tick_delta))
     ax.set_ylabel(f"{name.capitalize()} ({units})")
     ax.set_xlabel("Date", labelpad=10)
-
-    units = args["units"]
     ax.set_title(f"Running {name} in {units} ({total_runs} runs)")
 
     h_line_loc = args["h_line"]
@@ -83,11 +83,9 @@ def plot_all(
     print("\nPlotting")
     print("-----------")
 
-    dist, pace, hr, cad, weekly_dist, hr_vs_pace, cad_vs_pace = plot_choices
-
     ### First four plots have the same args (all are data versus date)
     all_data = {
-        "distance": dist, "pace": pace, "heartrate": hr, "cadence": cad
+        "distance": distances, "pace": paces, "heartrate": av_HR, "cadence": cadences
     }
     for i, name in enumerate(("distance", "pace", "heartrate", "cadence")):
         if plot_choices[i]:
@@ -98,14 +96,14 @@ def plot_all(
 
     ### Remaining plots are dissimilar
     # Weekly distance plot
-    if weekly_dist:
+    if plot_choices[4]:
         print("Plotting weekly distances...", end=" ")
         fig, ax = plt.subplots(figsize=(11,5), dpi=150, facecolor="#FFFFFF")
         ax.grid(linewidth=0.5)
         ax.set_ylabel("Weekly distance (km)", labelpad=10)
         ax.set_xlabel("Week number")
         ax.set_title("Weekly distance")
-        ax.set_xticks(np.arange(0,len(distances_weekly),5))
+        ax.set_xticks(np.arange(0, len(distances_weekly), 10))
 
         ax.plot(distances_weekly, "-bo", mec="#000", mfc="#727ffc")
         plt.savefig(f"{plot_filepath}/weekly_distance.svg")
@@ -113,7 +111,7 @@ def plot_all(
         print(f"{tick_mark}")
 
     # Pace vs average HR
-    if hr_vs_pace:
+    if plot_choices[5]:
         print("Plotting heart rate vs pace...", end=" ")
 
         # Remove nans from heart rate (run before optical sensor watch)
@@ -131,12 +129,12 @@ def plot_all(
                 new_distances.append(distances[i])
 
         fig, ax = plt.subplots(figsize=(11,5), dpi=150, facecolor="#FFFFFF")
-        ax.axis(ymin=130)
+        ax.axis(ymin=125)
         ax.axis(ymax=190)
 
         ax.grid(linewidth=0.5)
 
-        ax.set_yticks(np.arange(130, 190, 10))
+        ax.set_yticks(np.arange(125, 190, 10))
         ax.set_ylabel("HR (bpm)")
         ax.set_xlabel("Pace (mins/km)", labelpad=10)
         ax.set_title(f"Average HR vs pace")
@@ -160,7 +158,7 @@ def plot_all(
         print(f"{tick_mark}")
 
     # Pace vs cadence
-    if cad_vs_pace:
+    if plot_choices[6]:
         print("Plotting cadence vs pace...", end=" ")
         fig, ax = plt.subplots(figsize=(11, 5), dpi=150, facecolor="#FFFFFF")
         # ax.axis(ymin=130)

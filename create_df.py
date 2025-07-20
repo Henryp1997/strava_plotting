@@ -16,7 +16,7 @@ desired_columns = [
 def fetch_dataframe(
         json_header,
         activities_url="https://www.strava.com/api/v3/athlete/activities",
-        per_page=50,
+        per_page=100,
         page=1
     ):
     """ Get dataframe of activities from Strava API"""
@@ -33,6 +33,8 @@ def fetch_dataframe(
         # If access token is invalid, 'data' is only a single dictionary containing the errors
         if data["message"] == "Authorization Error":
             error = "Access code invalid/expired! Please try regenerating the access token."
+        elif data["message"] == "Bad Request":
+            error = f"'Bad Request' received. Try reducing the value of 'per_page' (current = {per_page})"
         else:
             error = f"Unknown error occurred when requesting data. Error message is {data['message']}"
         raise RuntimeError(error)
@@ -42,8 +44,8 @@ def fetch_dataframe(
     while True:
         print(f"Page {page}...", end=" ")
         page += 1
+        params["page"] = page
         temp_data = requests.get(activities_url, headers=json_header, params=params).json()
-        print(temp_data.keys())
         if not temp_data:
             break
         data += temp_data
